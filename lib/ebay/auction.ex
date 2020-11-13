@@ -9,6 +9,8 @@ defmodule Ebay.Auction do
     field :finish, :utc_datetime
     field :started, :boolean
     field :finished, :boolean
+
+    timestamps()
   end
 
   def new() do

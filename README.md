@@ -1,27 +1,20 @@
 # Ebay
 
-```elixir
-a = Ebay.Auction.new()
-Ebay.AuctionServer.new_auction(Ebay.AuctionServer, a)
-Ebay.AuctionServer.bid(Ebay.AuctionServer, a.id)
+To start your Phoenix server:
 
-Scheduler.schedule(Scheduler, fn () -> IO.puts("testing!!!!") end, DateTime.utc_now() |> DateTime.add(5, :second))
-```
+  * Install dependencies with `mix deps.get`
+  * Create and migrate your database with `mix ecto.setup`
+  * Install Node.js dependencies with `npm install` inside the `assets` directory
+  * Start Phoenix endpoint with `mix phx.server`
 
-## Installation
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ebay` to your list of dependencies in `mix.exs`:
+Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-```elixir
-def deps do
-  [
-    {:ebay, "~> 0.1.0"}
-  ]
-end
-```
+## Learn more
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ebay](https://hexdocs.pm/ebay).
-
+  * Official website: https://www.phoenixframework.org/
+  * Guides: https://hexdocs.pm/phoenix/overview.html
+  * Docs: https://hexdocs.pm/phoenix
+  * Forum: https://elixirforum.com/c/phoenix-forum
+  * Source: https://github.com/phoenixframework/phoenix
