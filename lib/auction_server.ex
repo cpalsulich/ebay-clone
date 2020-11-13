@@ -1,5 +1,6 @@
 defmodule Ebay.AuctionServer do
   use GenServer
+  require Ecto.Query
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -14,7 +15,7 @@ defmodule Ebay.AuctionServer do
 
   # client code
   def new_auction(pid, auction) do
-    GenServer.call(pid, {:create, auction})
+    GenServer.call(pid, {:add, auction})
   end
 
   def bid(pid, id) do
@@ -23,7 +24,8 @@ defmodule Ebay.AuctionServer do
 
   @impl true
   def init(_state) do
-    {:ok, %{}}
+    auctions = Ebay.Auction |> Ecto.Query.where(started: false) |> Ebay.Repo.all
+    {:ok, Enum.reduce(auctions, %{}, &add_auction/2)}
   end
 
   @impl true
@@ -33,15 +35,8 @@ defmodule Ebay.AuctionServer do
   end
 
   @impl true
-  def handle_call({:create, auction}, _from, state) do
-    IO.puts("adding new auction #{auction.id}")
-    Scheduler.schedule(Scheduler,
-      fn () -> GenServer.cast(Ebay.AuctionServer, {:start, auction.id}) end,
-      auction.start |> DateTime.add(5, :millisecond))
-    Scheduler.schedule(Scheduler,
-      fn () -> GenServer.cast(Ebay.AuctionServer, {:finish, auction.id}) end,
-      auction.finish |> DateTime.add(5, :millisecond))
-    {:reply, auction, Map.put(state, auction.id, auction)}
+  def handle_call({:add, auction}, _from, state) do
+    {:reply, auction, add_auction(auction, state)}
   end
 
   @impl true
@@ -52,6 +47,25 @@ defmodule Ebay.AuctionServer do
   @impl true
   def handle_cast({:finish, id}, state) do
     {:noreply, Map.put(state, id, Ebay.Auction.finish(Map.get(state, id)))}
+  end
+
+  defp add_auction(auction, map) do
+    IO.puts("adding new auction #{auction.id}")
+    schedule_start(auction)
+    schedule_finish(auction)
+    Map.put(map, auction.id, auction)
+  end
+
+  defp schedule_start(auction) do
+    Scheduler.schedule(Scheduler,
+      fn () -> GenServer.cast(Ebay.AuctionServer, {:start, auction.id}) end,
+      auction.start |> DateTime.add(5, :millisecond))
+  end
+
+  defp schedule_finish(auction) do
+    Scheduler.schedule(Scheduler,
+      fn () -> GenServer.cast(Ebay.AuctionServer, {:finish, auction.id}) end,
+      auction.finish |> DateTime.add(5, :millisecond))
   end
 
 
