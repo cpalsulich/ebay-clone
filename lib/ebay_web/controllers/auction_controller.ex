@@ -10,7 +10,7 @@ defmodule EbayWeb.AuctionController do
   end
 
   def new(conn, _params) do
-    changeset = Auction.update_changeset(Auction.new())
+    changeset = Auction.update_changeset(Auction.new_struct())
     # IEx.pry
     render(conn, "new.html", changeset: changeset)
   end

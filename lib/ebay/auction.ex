@@ -14,20 +14,24 @@ defmodule Ebay.Auction do
     timestamps()
   end
 
-  def new() do
-    new("test_item",
+  def new_struct() do
+    new_struct("test_item",
       Money.new(0),
-      DateTime.utc_now() |> DateTime.add(1, :second),
-      DateTime.utc_now() |> DateTime.add(5000, :second))
+      DateTime.utc_now() |> DateTime.add(3600 * 24, :second),
+      DateTime.utc_now() |> DateTime.add(3600 * 24 * 2, :second))
   end
 
-  def new(item_name, price, start, finish) do
-    Ebay.Repo.insert!(update_changeset(%__MODULE__{
+  # def new(item_name, price, start, finish) do
+  #   Ebay.Repo.insert!(update_changeset(new_struct(item_name, price, start, finish)))
+  # end
+
+  def new_struct(item_name, price, start, finish) do
+    %__MODULE__{
       item_name: item_name,
       price: price,
       start: start |> DateTime.truncate(:second),
       finish: finish |> DateTime.truncate(:second)
-    }))
+    }
   end
 
   def create_auction(auction_params) do
@@ -126,8 +130,8 @@ defmodule Ebay.Auction do
     |> validate_required([:item_name, :price, :start, :finish])
     |> validate_item_name()
     |> validate_number(:price, greater_than: auction.price)
-    |> validate_start()
-    |> validate_finish()
+    |> validate_start(auction)
+    |> validate_finish(auction)
     |> validate_start_finish()
   end
 
@@ -141,9 +145,12 @@ defmodule Ebay.Auction do
     end)
   end
 
-  defp validate_start(changeset) do
+  defp validate_start(changeset, auction) do
     validate_change(changeset, :start, fn :start, start ->
-      if start == nil || DateTime.compare(DateTime.now!(start.time_zone), start) != :lt do
+      if start == nil
+        || (auction.start != nil
+          && DateTime.compare(start, auction.start) != :eq
+          && DateTime.compare(DateTime.now!(start.time_zone), start) != :lt) do
         [start: "must be in the future"]
       else
         []
@@ -151,9 +158,12 @@ defmodule Ebay.Auction do
     end)
   end
 
-  defp validate_finish(changeset) do
+  defp validate_finish(changeset, auction) do
     validate_change(changeset, :finish, fn :finish, finish ->
-      if finish == nil || DateTime.compare(DateTime.now!(finish.time_zone), finish) != :lt do
+      if finish == nil
+        || (auction.finish != nil
+          && DateTime.compare(finish, auction.finish) != :eq
+          && DateTime.compare(DateTime.now!(finish.time_zone), finish) != :lt) do
         [finish: "must be in the future"]
       else
         []

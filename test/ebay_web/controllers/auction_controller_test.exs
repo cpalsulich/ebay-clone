@@ -3,14 +3,14 @@ defmodule EbayWeb.AuctionControllerTest do
 
   alias Ebay.Auction
 
-  @create_attrs %{finish: DateTime.utc_now() |> DateTime.add(5, :second) |> DateTime.to_string(),
+  @create_attrs %{finish: DateTime.utc_now() |> DateTime.add(600, :second) |> DateTime.to_string(),
     item_name: "some item_name",
     price: 42,
-    start: DateTime.utc_now() |> DateTime.add(3, :second) |> DateTime.to_string()}
-  @update_attrs %{finish: DateTime.utc_now() |> DateTime.add(5, :second) |> DateTime.to_string(),
+    start: DateTime.utc_now() |> DateTime.add(60, :second) |> DateTime.to_string()}
+  @update_attrs %{finish: DateTime.utc_now() |> DateTime.add(600, :second) |> DateTime.to_string(),
     item_name: "some updated item_name",
     price: 43,
-    start: DateTime.utc_now() |> DateTime.add(3, :second) |> DateTime.to_string()}
+    start: DateTime.utc_now() |> DateTime.add(60, :second) |> DateTime.to_string()}
   @invalid_attrs %{finish: nil, finished: nil, item_name: nil, price: nil, start: nil, started: nil}
 
   def fixture(:auction) do
