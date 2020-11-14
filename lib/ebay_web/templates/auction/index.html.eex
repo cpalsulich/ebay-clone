@@ -1,0 +1,36 @@
+<h1>Listing Auctions</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item name</th>
+      <th>Price</th>
+      <th>Start</th>
+      <th>Finish</th>
+      <th>Started</th>
+      <th>Finished</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for auction <- @auctions do %>
+    <tr>
+      <td><%= auction.item_name %></td>
+      <td><%= auction.price %></td>
+      <td><%= auction.start %></td>
+      <td><%= auction.finish %></td>
+      <td><%= auction.started %></td>
+      <td><%= auction.finished %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.auction_path(@conn, :show, auction) %></span>
+        <span><%= link "Edit", to: Routes.auction_path(@conn, :edit, auction) %></span>
+        <span><%= link "Delete", to: Routes.auction_path(@conn, :delete, auction), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Auction", to: Routes.auction_path(@conn, :new) %></span>

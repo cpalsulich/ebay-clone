@@ -48,7 +48,8 @@ defmodule Ebay.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:ecto_psql_extras, "~> 0.2"},
-      {:money, "~> 1.8.0"}
+      {:money, "~> 1.8.0"},
+      {:uuid, "~> 1.1.8"}
     ]
   end
 

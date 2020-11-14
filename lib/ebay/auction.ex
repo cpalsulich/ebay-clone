@@ -1,6 +1,7 @@
 defmodule Ebay.Auction do
   use Ecto.Schema
   import Ecto.Changeset
+  require Ecto.Query
 
   schema "auctions" do
     field :item_name, :string
@@ -17,16 +18,38 @@ defmodule Ebay.Auction do
     new("test_item",
       Money.new(0),
       DateTime.utc_now() |> DateTime.add(1, :second),
-      DateTime.utc_now() |> DateTime.add(5, :second))
+      DateTime.utc_now() |> DateTime.add(5000, :second))
   end
 
   def new(item_name, price, start, finish) do
-    Ebay.Repo.insert!(create_changeset(%__MODULE__{
+    Ebay.Repo.insert!(update_changeset(%__MODULE__{
       item_name: item_name,
       price: price,
       start: start |> DateTime.truncate(:second),
       finish: finish |> DateTime.truncate(:second)
     }))
+  end
+
+  def create_auction(auction_params) do
+    IO.puts("create_auction")
+    IO.inspect(auction_params)
+    Ebay.Repo.insert(update_changeset(%__MODULE__{}, auction_params))
+  end
+
+  def update_auction(auction, params) do
+    Ebay.Repo.update(update_changeset(auction, params))
+  end
+
+  def get_auction!(id) do
+    Ebay.Auction |> Ebay.Repo.get!(id)
+  end
+
+  def delete_auction(auction) do
+    Ebay.Repo.delete(auction)
+  end
+
+  def list_auctions() do
+    Ebay.Auction |> Ecto.Query.where(finished: false) |> Ebay.Repo.all
   end
 
   def start(auction) do
@@ -97,12 +120,12 @@ defmodule Ebay.Auction do
       end)
   end
 
-  def create_changeset(auction, params \\ %{}) do
+  def update_changeset(auction, params \\ %{}) do
     auction
     |> cast(params, [:item_name, :price, :start, :finish])
     |> validate_required([:item_name, :price, :start, :finish])
     |> validate_item_name()
-    |> validate_price()
+    |> validate_number(:price, greater_than: auction.price)
     |> validate_start()
     |> validate_finish()
     |> validate_start_finish()
@@ -118,27 +141,19 @@ defmodule Ebay.Auction do
     end)
   end
 
-  defp validate_price(changeset) do
-    validate_change(changeset, :price, fn :price, price ->
-      if !is_number(price) do
-        [price: "can't be empty and must be a number"]
+  defp validate_start(changeset) do
+    validate_change(changeset, :start, fn :start, start ->
+      if start == nil || DateTime.compare(DateTime.now!(start.time_zone), start) != :lt do
+        [start: "must be in the future"]
       else
         []
       end
     end)
   end
 
-  defp validate_start(changeset) do
-    validate_change(changeset, :start, fn :start, start ->
-      if DateTime.compare(DateTime.now!(start.time_zone), start) != :lt do
-        [start: "must be in the future"]
-      end
-    end)
-  end
-
   defp validate_finish(changeset) do
     validate_change(changeset, :finish, fn :finish, finish ->
-      if DateTime.compare(DateTime.now!(finish.time_zone), finish) != :lt do
+      if finish == nil || DateTime.compare(DateTime.now!(finish.time_zone), finish) != :lt do
         [finish: "must be in the future"]
       else
         []
@@ -150,7 +165,7 @@ defmodule Ebay.Auction do
     start = get_field(changeset, :start)
     finish = get_field(changeset, :finish)
 
-    if DateTime.compare(start, finish) != :lt do
+    if start == nil || finish == nil || DateTime.compare(start, finish) != :lt do
       add_error(changeset, :finish, "should be after start")
     else
       changeset

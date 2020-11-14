@@ -1,0 +1,38 @@
+<h1>Show Auction</h1>
+
+<ul>
+
+  <li>
+    <strong>Item name:</strong>
+    <%= @auction.item_name %>
+  </li>
+
+  <li>
+    <strong>Price:</strong>
+    <%= @auction.price %>
+  </li>
+
+  <li>
+    <strong>Start:</strong>
+    <%= @auction.start %>
+  </li>
+
+  <li>
+    <strong>Finish:</strong>
+    <%= @auction.finish %>
+  </li>
+
+  <li>
+    <strong>Started:</strong>
+    <%= @auction.started %>
+  </li>
+
+  <li>
+    <strong>Finished:</strong>
+    <%= @auction.finished %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.auction_path(@conn, :edit, @auction) %></span>
+<span><%= link "Back", to: Routes.auction_path(@conn, :index) %></span>
