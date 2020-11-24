@@ -7,11 +7,7 @@
 
   <%= label f, :item_name %>
   <%= text_input f, :item_name %>
-  <%= error_tag f, :item_name %>
-
-  <%= label f, :price %>
-  <%= number_input f, :price %>
-  <%= error_tag f, :price %>
+  <%= error_tag f, :item_name %>>
 
   <%= label f, :start %>
   <%= datetime_select f, :start %>

@@ -3,57 +3,57 @@ defmodule Ebay.Auction do
   import Ecto.Changeset
   require Ecto.Query
 
+  @timestamps_opts [type: :utc_datetime]
+
   schema "auctions" do
     field :item_name, :string
-    field :price, Money.Ecto.Amount.Type
     field :start, :utc_datetime
     field :finish, :utc_datetime
     field :started, :boolean
     field :finished, :boolean
+    has_many :bids, Ebay.Bid
 
     timestamps()
   end
 
   def new_struct() do
     new_struct("test_item",
-      Money.new(0),
-      DateTime.utc_now() |> DateTime.add(3600 * 24, :second),
+      DateTime.utc_now() |> DateTime.add(120, :second),
       DateTime.utc_now() |> DateTime.add(3600 * 24 * 2, :second))
   end
 
-  # def new(item_name, price, start, finish) do
-  #   Ebay.Repo.insert!(update_changeset(new_struct(item_name, price, start, finish)))
-  # end
-
-  def new_struct(item_name, price, start, finish) do
+  def new_struct(item_name, start, finish) do
     %__MODULE__{
       item_name: item_name,
-      price: price,
       start: start |> DateTime.truncate(:second),
       finish: finish |> DateTime.truncate(:second)
     }
   end
 
-  def create_auction(auction_params) do
-    IO.puts("create_auction")
+  def create(auction_params) do
+    IO.puts("create")
     IO.inspect(auction_params)
     Ebay.Repo.insert(update_changeset(%__MODULE__{}, auction_params))
+    |> Ebay.Repo.preload(:bids)
   end
 
-  def update_auction(auction, params) do
-    Ebay.Repo.update(update_changeset(auction, params))
+  def update(auction, params) do
+    Ebay.Repo.update(update_changeset(auction, params)) |> Ebay.Repo.preload(:bids)
   end
 
-  def get_auction!(id) do
-    Ebay.Auction |> Ebay.Repo.get!(id)
+  def get!(id) do
+    Ebay.Auction |> Ebay.Repo.get!(id) |> Ebay.Repo.preload(:bids)
   end
 
-  def delete_auction(auction) do
+  def delete(auction) do
     Ebay.Repo.delete(auction)
   end
 
-  def list_auctions() do
-    Ebay.Auction |> Ecto.Query.where(finished: false) |> Ebay.Repo.all
+  def get_unfinished() do
+    Ebay.Auction
+    |> Ecto.Query.where(finished: false)
+    |> Ebay.Repo.all
+    |> Ebay.Repo.preload([bids: Ecto.Query.from(b in Ebay.Bid, order_by: b.price)])
   end
 
   def start(auction) do
@@ -66,19 +66,27 @@ defmodule Ebay.Auction do
     Ebay.Repo.update!(changeset)
   end
 
-  def bid(auction = %__MODULE{finished: true}) do
+  def current_bid(%__MODULE__{bids: []}) do
+    Money.new(0)
+  end
+
+  def current_bid(%__MODULE__{bids: [current | _tail]}) do
+    current
+  end
+
+  def bid(auction = %__MODULE{finished: true}, _amount) do
     IO.puts("auction finished")
     auction
   end
 
-  def bid(auction = %__MODULE{started: false}) do
+  def bid(auction = %__MODULE{started: false}, _amount) do
     IO.puts("auction not started")
     auction
   end
 
-  def bid(auction) do
-    changeset = Ebay.Auction.price_changeset(auction, %{price: Money.add(auction.price, Money.new(100))})
-    Ebay.Repo.update!(changeset)
+  def bid(auction, amount) do
+    _bid = Ebay.Repo.insert!(Ecto.build_assoc(auction, :bids, %{price: amount}))
+    auction |> Ebay.Repo.preload(:bids)
   end
 
   def started_changeset(auction, params \\ %{}) do
@@ -111,25 +119,11 @@ defmodule Ebay.Auction do
     )
   end
 
-  def price_changeset(auction, params \\ %{}) do
-    auction
-    |> cast(params, [:price])
-    |> validate_change(:price,
-      fn :price, price ->
-        if price <= auction.price || auction.finished || !auction.started do
-          [price: "must be greater than previous price and auction must be live"]
-        else
-          []
-        end
-      end)
-  end
-
   def update_changeset(auction, params \\ %{}) do
     auction
-    |> cast(params, [:item_name, :price, :start, :finish])
-    |> validate_required([:item_name, :price, :start, :finish])
+    |> cast(params, [:item_name, :start, :finish])
+    |> validate_required([:item_name, :start, :finish])
     |> validate_item_name()
-    |> validate_number(:price, greater_than: auction.price)
     |> validate_start(auction)
     |> validate_finish(auction)
     |> validate_start_finish()

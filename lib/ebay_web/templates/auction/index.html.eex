@@ -4,7 +4,7 @@
   <thead>
     <tr>
       <th>Item name</th>
-      <th>Price</th>
+      <th>Current Bid</th>
       <th>Start</th>
       <th>Finish</th>
       <th>Started</th>
@@ -17,7 +17,7 @@
 <%= for auction <- @auctions do %>
     <tr>
       <td><%= auction.item_name %></td>
-      <td><%= auction.price %></td>
+      <td><%= current_bid(auction) %></td>
       <td><%= auction.start %></td>
       <td><%= auction.finish %></td>
       <td><%= auction.started %></td>

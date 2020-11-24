@@ -24,7 +24,7 @@ defmodule Ebay.AuctionServer do
 
   @impl true
   def init(_state) do
-    auctions = Ebay.Auction |> Ecto.Query.where(started: false) |> Ebay.Repo.all
+    auctions = Ebay.Auction |> Ecto.Query.where(finished: false) |> Ebay.Repo.all
     {:ok, Enum.reduce(auctions, %{}, &add_auction/2)}
   end
 

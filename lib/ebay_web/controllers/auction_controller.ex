@@ -5,7 +5,7 @@ defmodule EbayWeb.AuctionController do
   alias Ebay.Auction
 
   def index(conn, _params) do
-    auctions = Auction.list_auctions()
+    auctions = Auction.get_unfinished()
     render(conn, "index.html", auctions: auctions)
   end
 
@@ -16,7 +16,7 @@ defmodule EbayWeb.AuctionController do
   end
 
   def create(conn, %{"auction" => auction_params}) do
-    case Auction.create_auction(auction_params) do
+    case Auction.create(auction_params) do
       {:ok, auction} ->
         IO.inspect(auction)
         conn
@@ -30,20 +30,20 @@ defmodule EbayWeb.AuctionController do
   end
 
   def show(conn, %{"id" => id}) do
-    auction = Auction.get_auction!(id)
+    auction = Auction.get!(id)
     render(conn, "show.html", auction: auction)
   end
 
   def edit(conn, %{"id" => id}) do
-    auction = Auction.get_auction!(id)
+    auction = Auction.get!(id)
     # IEx.pry
     changeset = Auction.update_changeset(auction)
     render(conn, "edit.html", auction: auction, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "auction" => auction_params}) do
-    auction = Auction.get_auction!(id)
-    case Auction.update_auction(auction, auction_params) do
+    auction = Auction.get!(id)
+    case Auction.update(auction, auction_params) do
       {:ok, auction} ->
         conn
         |> put_flash(:info, "Auction updated successfully.")
@@ -55,7 +55,7 @@ defmodule EbayWeb.AuctionController do
   end
 
   def delete(conn, %{"id" => id}) do
-    {:ok, _auction} = Auction.delete_auction(Auction.get_auction!(id))
+    {:ok, _auction} = Auction.delete(Auction.get!(id))
 
     conn
     |> put_flash(:info, "Auction deleted successfully.")

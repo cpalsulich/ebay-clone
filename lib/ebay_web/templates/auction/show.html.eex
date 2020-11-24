@@ -8,8 +8,8 @@
   </li>
 
   <li>
-    <strong>Price:</strong>
-    <%= @auction.price %>
+    <strong>Current Bid:</strong>
+    <%= current_bid(@auction) %>
   </li>
 
   <li>

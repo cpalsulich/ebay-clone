@@ -5,16 +5,14 @@ defmodule EbayWeb.AuctionControllerTest do
 
   @create_attrs %{finish: DateTime.utc_now() |> DateTime.add(600, :second) |> DateTime.to_string(),
     item_name: "some item_name",
-    price: 42,
     start: DateTime.utc_now() |> DateTime.add(60, :second) |> DateTime.to_string()}
   @update_attrs %{finish: DateTime.utc_now() |> DateTime.add(600, :second) |> DateTime.to_string(),
     item_name: "some updated item_name",
-    price: 43,
     start: DateTime.utc_now() |> DateTime.add(60, :second) |> DateTime.to_string()}
-  @invalid_attrs %{finish: nil, finished: nil, item_name: nil, price: nil, start: nil, started: nil}
+  @invalid_attrs %{finish: nil, finished: nil, item_name: nil, start: nil, started: nil}
 
   def fixture(:auction) do
-    {:ok, auction} = Auction.create_auction(@create_attrs)
+    {:ok, auction} = Auction.create(@create_attrs)
     auction
   end
 
@@ -50,7 +48,7 @@ defmodule EbayWeb.AuctionControllerTest do
   end
 
   describe "edit auction" do
-    setup [:create_auction]
+    setup [:create]
 
     test "renders form for editing chosen auction", %{conn: conn, auction: auction} do
       conn = get(conn, Routes.auction_path(conn, :edit, auction))
@@ -59,7 +57,7 @@ defmodule EbayWeb.AuctionControllerTest do
   end
 
   describe "update auction" do
-    setup [:create_auction]
+    setup [:create]
 
     test "redirects when data is valid", %{conn: conn, auction: auction} do
       conn = put(conn, Routes.auction_path(conn, :update, auction), auction: @update_attrs)
@@ -76,7 +74,7 @@ defmodule EbayWeb.AuctionControllerTest do
   end
 
   describe "delete auction" do
-    setup [:create_auction]
+    setup [:create]
 
     test "deletes chosen auction", %{conn: conn, auction: auction} do
       conn = delete(conn, Routes.auction_path(conn, :delete, auction))
@@ -87,7 +85,7 @@ defmodule EbayWeb.AuctionControllerTest do
     end
   end
 
-  defp create_auction(_) do
+  defp create(_) do
     auction = fixture(:auction)
     %{auction: auction}
   end
