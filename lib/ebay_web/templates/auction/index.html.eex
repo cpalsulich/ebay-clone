@@ -25,8 +25,10 @@
 
       <td>
         <span><%= link "Show", to: Routes.auction_path(@conn, :show, auction) %></span>
-        <span><%= link "Edit", to: Routes.auction_path(@conn, :edit, auction) %></span>
-        <span><%= link "Delete", to: Routes.auction_path(@conn, :delete, auction), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <%= if !auction.started do %>
+          <span><%= link "Edit", to: Routes.auction_path(@conn, :edit, auction) %></span>
+          <span><%= link "Delete", to: Routes.auction_path(@conn, :delete, auction), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <% end %>
       </td>
     </tr>
 <% end %>

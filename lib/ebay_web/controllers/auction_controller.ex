@@ -1,6 +1,5 @@
 defmodule EbayWeb.AuctionController do
   use EbayWeb, :controller
-  require IEx
 
   alias Ebay.Auction
 
@@ -18,13 +17,11 @@ defmodule EbayWeb.AuctionController do
   def create(conn, %{"auction" => auction_params}) do
     case Auction.create(auction_params) do
       {:ok, auction} ->
-        IO.inspect(auction)
         conn
         |> put_flash(:info, "Auction created successfully.")
         |> redirect(to: Routes.auction_path(conn, :show, auction))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        IO.inspect(changeset)
         render(conn, "new.html", changeset: changeset)
     end
   end

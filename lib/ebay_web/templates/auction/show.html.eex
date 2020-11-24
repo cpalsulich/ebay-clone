@@ -34,5 +34,7 @@
 
 </ul>
 
-<span><%= link "Edit", to: Routes.auction_path(@conn, :edit, @auction) %></span>
+<%= if !@auction.started do %>
+  <span><%= link "Edit", to: Routes.auction_path(@conn, :edit, @auction) %></span>
+<% end %>
 <span><%= link "Back", to: Routes.auction_path(@conn, :index) %></span>

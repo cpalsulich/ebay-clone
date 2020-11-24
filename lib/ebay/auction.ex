@@ -71,7 +71,7 @@ defmodule Ebay.Auction do
   end
 
   def current_bid(%__MODULE__{bids: [current | _tail]}) do
-    current
+    current.price
   end
 
   def bid(auction = %__MODULE{finished: true}, _amount) do
