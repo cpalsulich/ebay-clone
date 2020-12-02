@@ -18,7 +18,9 @@ defmodule EbayWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-    resources "/auctions", AuctionController
+    resources "/auctions", AuctionController do
+      resources "/bids", BidController, only: [:create]
+    end
   end
 
   # Other scopes may use custom stacks.

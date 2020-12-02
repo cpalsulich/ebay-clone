@@ -34,7 +34,10 @@
 
 </ul>
 
+
 <%= if !@auction.started do %>
   <span><%= link "Edit", to: Routes.auction_path(@conn, :edit, @auction) %></span>
+<% else %>
+    <%= render "bid_form.html", Map.put(assigns, :action, Routes.auction_bid_path(@conn, :create, @auction.id)) %>
 <% end %>
 <span><%= link "Back", to: Routes.auction_path(@conn, :index) %></span>

@@ -2,6 +2,7 @@ defmodule EbayWeb.AuctionController do
   use EbayWeb, :controller
 
   alias Ebay.Auction
+  alias Ebay.Bid
 
   def index(conn, _params) do
     auctions = Auction.get_unfinished()
@@ -10,7 +11,7 @@ defmodule EbayWeb.AuctionController do
 
   def new(conn, _params) do
     changeset = Auction.update_changeset(Auction.new_struct())
-    # IEx.pry
+    IO.puts(Auction.new_struct().started)
     render(conn, "new.html", changeset: changeset)
   end
 
@@ -28,7 +29,11 @@ defmodule EbayWeb.AuctionController do
 
   def show(conn, %{"id" => id}) do
     auction = Auction.get!(id)
-    render(conn, "show.html", auction: auction)
+    if auction.started do
+      render(conn, "show.html", auction: auction, bid_changeset: Bid.create_changeset())
+    else
+      render(conn, "show.html", auction: auction)
+    end
   end
 
   def edit(conn, %{"id" => id}) do
@@ -48,6 +53,10 @@ defmodule EbayWeb.AuctionController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", auction: auction, changeset: changeset)
+
+      _ ->
+        conn
+        |> put_flash(:info, "Auction update unsuccessful.")
     end
   end
 

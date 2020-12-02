@@ -18,8 +18,8 @@ defmodule Ebay.AuctionServer do
     GenServer.call(pid, {:add, auction})
   end
 
-  def bid(pid, id) do
-    GenServer.call(pid, {:bid, id})
+  def bid(pid, id, amount) do
+    GenServer.call(pid, {:bid, [id, amount]})
   end
 
   @impl true
@@ -29,8 +29,8 @@ defmodule Ebay.AuctionServer do
   end
 
   @impl true
-  def handle_call({:bid, id}, _from, state) do
-    a = Ebay.Auction.bid(Map.get(state, id))
+  def handle_call({:bid, [id, amount]}, _from, state) do
+    a = Ebay.Auction.bid(Map.get(state, id), amount)
     {:reply, a, Map.put(state, id, a)}
   end
 

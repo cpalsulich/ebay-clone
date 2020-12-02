@@ -5,7 +5,9 @@
     </div>
   <% end %>
 
-  <%= if :started? do %>
+  <% view_assigns(assigns[:started]) %>
+
+  <%= if !:started? do %>
     <p>Nothing to edit</p>
   <% else %>
     <%= label f, :item_name %>

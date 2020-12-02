@@ -1,6 +1,6 @@
 defmodule Ebay.Auction do
-  use Ecto.Schema
-  import Ecto.Changeset
+    use Ecto.Schema
+    import Ecto.Changeset
   require Ecto.Query
 
   @timestamps_opts [type: :utc_datetime]
@@ -26,7 +26,9 @@ defmodule Ebay.Auction do
     %__MODULE__{
       item_name: item_name,
       start: start |> DateTime.truncate(:second),
-      finish: finish |> DateTime.truncate(:second)
+      finish: finish |> DateTime.truncate(:second),
+      started: false,
+      finished: false
     }
   end
 
@@ -34,15 +36,17 @@ defmodule Ebay.Auction do
     IO.puts("create")
     IO.inspect(auction_params)
     Ebay.Repo.insert(update_changeset(%__MODULE__{}, auction_params))
-    |> Ebay.Repo.preload(:bids)
   end
 
   def update(auction, params) do
-    Ebay.Repo.update(update_changeset(auction, params)) |> Ebay.Repo.preload(:bids)
+    Ebay.Repo.update(update_changeset(auction, params))
+    |> Ebay.Repo.preload([bids: Ecto.Query.from(b in Ebay.Bid, order_by: [desc: :price])])
   end
 
   def get!(id) do
-    Ebay.Auction |> Ebay.Repo.get!(id) |> Ebay.Repo.preload(:bids)
+    Ebay.Auction
+    |> Ebay.Repo.get!(id)
+    |> Ebay.Repo.preload([bids: Ecto.Query.from(b in Ebay.Bid, order_by: [desc: :price])])
   end
 
   def delete(auction) do
@@ -53,7 +57,7 @@ defmodule Ebay.Auction do
     Ebay.Auction
     |> Ecto.Query.where(finished: false)
     |> Ebay.Repo.all
-    |> Ebay.Repo.preload([bids: Ecto.Query.from(b in Ebay.Bid, order_by: b.price)])
+    |> Ebay.Repo.preload([bids: Ecto.Query.from(b in Ebay.Bid, order_by: [desc: :price])])
   end
 
   def start(auction) do
